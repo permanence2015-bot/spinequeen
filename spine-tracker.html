@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="My Spine Journey">
+<meta name="theme-color" content="#f9a8d4">
+<title>💜 My Spine Journey 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:#fffbff;font-family:'Nunito',sans-serif;color:#3d2d6b;overscroll-behavior:none;}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#fff0f5}::-webkit-scrollbar-thumb{background:#ffb3c6;border-radius:3px}
+  textarea{resize:vertical;font-family:'Nunito',sans-serif;}
+  button{font-family:'Nunito',sans-serif;cursor:pointer;}
+  a{text-decoration:none;}
+  .ex-card{transition:transform 0.2s,box-shadow 0.2s;}
+  .ex-card:active{transform:scale(0.98);}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+  @keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+  @keyframes pop{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}
+  .float-anim{animation:float 3s ease-in-out infinite;}
+  .shimmer-bar{background:linear-gradient(90deg,#ffb3c1,#ffd6a5,#fdffb6,#caffbf,#9bf6ff,#a0c4ff,#bdb2ff,#ffc6ff,#ffb3c1);background-size:200%;animation:shimmer 3s linear infinite;}
+  .confetti-piece{position:fixed;animation:confetti-fall 2.5s ease-in forwards;pointer-events:none;font-size:22px;z-index:9999;}
+  .tab-content{display:none;}.tab-content.active{display:block;animation:pop 0.2s ease;}
+  .yt-link{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#ff6b8a,#ff9f5b);border-radius:14px;padding:11px 16px;color:white;font-family:'Fredoka One',cursive;font-size:14px;box-shadow:0 4px 12px rgba(255,107,138,0.3);transition:transform 0.15s;}
+  .yt-link:active{transform:scale(0.97);}
+  .pain-btn{width:31px;height:31px;border-radius:50%;border:2px solid #e9d5ff;background:white;color:#9d77cc;font-family:'Fredoka One',cursive;font-size:12px;transition:all 0.15s;}
+  .pain-btn.selected-green{background:#4ade80;border-color:#4ade80;color:white;box-shadow:0 0 10px #4ade8088;}
+  .pain-btn.selected-yellow{background:#fbbf24;border-color:#fbbf24;color:white;box-shadow:0 0 10px #fbbf2488;}
+  .pain-btn.selected-red{background:#f87171;border-color:#f87171;color:white;box-shadow:0 0 10px #f8717188;}
+  .week-btn{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);color:#9d77cc;background:rgba(255,255,255,0.6);font-family:'Fredoka One',cursive;font-size:14px;transition:all 0.2s;}
+  .week-btn.active{color:white;}
+  .day-btn{flex:1;padding:8px 0 6px;border-radius:12px 12px 0 0;border:2px solid rgba(255,255,255,0.4);border-bottom:2px solid transparent;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s;}
+  .day-btn.workout{background:rgba(255,255,255,0.5);}
+  .day-btn.active{background:rgba(255,255,255,0.95);border-bottom:2px solid white;}
+  .phase-btn{flex:1;padding:10px 6px;border-radius:20px;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.2s;}
+  .phase-btn.active{background:rgba(255,255,255,0.9);}
+  .main-tab-btn{flex:1;padding:11px 0;background:none;border:none;font-family:'Fredoka One',cursive;font-size:11px;color:#c4b5fd;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;}
+  .main-tab-btn.active{border-bottom-width:3px;}
+  .expand-icon{transition:transform 0.2s;}
+  .ex-detail{display:none;}
+  .toggle-track{width:52px;height:28px;border-radius:14px;border:none;position:relative;transition:background 0.3s;cursor:pointer;}
+  .toggle-thumb{width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:3px;transition:left 0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Confetti container -->
+  <div id="confetti-container"></div>
+
+  <!-- ── HEADER ── -->
+  <div id="header" style="padding:20px 18px 0;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:8px;right:16px;font-size:28px;opacity:0.4;" class="float-anim">🌈</div>
+    <div style="position:absolute;top:20px;left:8px;font-size:20px;opacity:0.3;">⭐</div>
+    <div style="max-width:520px;margin:0 auto;">
+
+      <!-- Title + streak -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+        <div>
+          <div style="font-family:'Fredoka One',cursive;font-size:24px;color:#5b21b6;text-shadow:2px 2px 0px rgba(255,255,255,0.5);">💜 My Spine Journey 🌸</div>
+          <div style="font-size:11px;color:#7c3aed;font-weight:700;margin-top:1px;">L1–S1 Stenosis · L5 Disc · You've Got This! ✨</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.8);border-radius:16px;padding:8px 12px;text-align:center;flex-shrink:0;">
+          <div style="font-family:'Fredoka One',cursive;font-size:22px;color:#f97316;line-height:1;">🔥<span id="streak-display">0</span></div>
+          <div style="font-size:9px;color:#fb923c;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Streak</div>
+        </div>
+      </div>
+
+      <!-- Phase buttons -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button class="phase-btn active" id="phase-btn-0" onclick="setPhase(0)">
+          <div style="font-family:'Fredoka One',cursive;font-size:12px;" id="phase-btn-label-0">Foundation 🌱</div>
+          <div style="font-size:9px;color:#b197e0;margin-top:1px;">Weeks 1–3</div>
+        </button>
+        <button class="phase-btn" id="phase-btn-1" onclick="setPhase(1)">
+          <div style="font-family:'Fredoka One',cursive;font-size:12px;" id="phase-btn-label-1">Build 🌸</div>
+          <div style="font-size:9px;color:#b197e0;margin-top:1px;">Weeks 4–7</div>
+        </button>
+        <button class="phase-btn" id="phase-btn-2" onclick="setPhase(2)">
+          <div style="font-family:'Fredoka One',cursive;font-size:12px;" id="phase-btn-label-2">Strengthen 💪</div>
+          <div style="font-size:9px;color:#b197e0;margin-top:1px;">Weeks 8–12</div>
+        </button>
+      </div>
+
+      <!-- Week bubbles -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:14px;" id="week-container"></div>
+
+      <!-- Progress -->
+      <div style="text-align:center;margin-bottom:8px;">
+        <span style="font-family:'Fredoka One',cursive;font-size:22px;color:#5b21b6;" id="pct-display">0%</span>
+        <span style="font-size:11px;color:#9d77cc;font-weight:700;margin-left:6px;">today's magic ✨</span>
+      </div>
+      <div style="height:10px;border-radius:10px;background:rgba(255,255,255,0.5);margin-bottom:4px;overflow:hidden;">
+        <div class="shimmer-bar" id="progress-bar" style="height:100%;width:0%;border-radius:10px;transition:width 0.6s ease;"></div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#9d77cc;font-weight:700;margin-bottom:14px;" id="ex-count">0/0 exercises 🌟</div>
+
+      <!-- Day tabs -->
+      <div style="display:flex;gap:4px;" id="day-tabs"></div>
+    </div>
+  </div>
+
+  <!-- ── MAIN TABS ── -->
+  <div style="background:#fff;border-bottom:2px solid #f3e8ff;padding:0 18px;">
+    <div style="max-width:520px;margin:0 auto;display:flex;">
+      <button class="main-tab-btn active" id="mtab-today" onclick="setMainTab('today')">🌸 Today</button>
+      <button class="main-tab-btn" id="mtab-graph" onclick="setMainTab('graph')">📈 Pain Graph</button>
+      <button class="main-tab-btn" id="mtab-progress" onclick="setMainTab('progress')">📊 Progress</button>
+      <button class="main-tab-btn" id="mtab-tips" onclick="setMainTab('tips')">💡 Tips</button>
+    </div>
+  </div>
+
+  <!-- ── BODY ── -->
+  <div style="max-width:520px;margin:0 auto;padding:16px 18px 100px;">
+
+    <div style="background:#fff8f0;border:2px dashed #ffcba4;border-radius:16px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#b45309;line-height:1.6;">
+      ⚠️ Always consult your doctor or PT before exercising. Stop if leg pain, numbness, or weakness increases. Data saves automatically to this device. 💾
+    </div>
+
+    <!-- TODAY -->
+    <div id="tab-today" class="tab-content active">
+      <div id="today-content"></div>
+    </div>
+
+    <!-- GRAPH -->
+    <div id="tab-graph" class="tab-content">
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-family:'Fredoka One',cursive;font-size:22px;color:#7c3aed;">Pain & Medication Tracker 📈</div>
+        <div style="font-size:11px;color:#9d77cc;font-weight:700;">Last 30 logged days · 💊 yellow = on painkillers</div>
+      </div>
+      <div id="graph-content"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="tab-progress" class="tab-content">
+      <div id="progress-content"></div>
+    </div>
+
+    <!-- TIPS -->
+    <div id="tab-tips" class="tab-content">
+      <div id="tips-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const RAINBOW = ["#ff6b8a","#ff9f5b","#ffd166","#88d8a3","#5bc8e8","#a78bfa","#f472b6"];
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const PHASES = [
+  {id:1,name:"Foundation 🌱",weeks:"Weeks 1–3",accent:"#ff6b8a",tag:"Build your base — gentle & safe",days:["Mon","Wed","Fri"],exercises:[
+    {id:"ab-brace",name:"Abdominal Bracing",icon:"🫁",sets:"3 sets",reps:"10 × 10s holds",focus:"Deep core activation",cue:"Lie on back, knees bent. Gently draw navel toward spine — like bracing for a light poke in the tummy 😄. Hold 10s. Keep breathing!",avoid:"Holding your breath or flattening your back",yt:"https://www.youtube.com/watch?v=UMslRaK5saI"},
+    {id:"heel-slide",name:"Heel Slides",icon:"🦵",sets:"2 sets",reps:"10 each leg",focus:"Hip mobility",cue:"Lie on back, legs straight. Slowly slide one heel toward your bottom, keeping your spine perfectly still. Alternate legs like making snow angels! ⛄",avoid:"Arching your lower back as your leg moves",yt:"https://www.youtube.com/watch?v=6-anByqnKp8"},
+    {id:"bird-dog-mod",name:"Bird Dog (Arms Only) 🐦",icon:"🐦",sets:"3 sets",reps:"8 each side",focus:"Spinal stabilizers",cue:"On hands and knees. Extend one arm forward, hold 3s. Imagine balancing a teacup on your back ☕ — no spilling! Alternate arms only to start.",avoid:"Rotating hips or losing your neutral spine",yt:"https://www.youtube.com/watch?v=QQot16miua8"},
+    {id:"cobra-half",name:"Half Cobra Press-Up 🐍",icon:"🐍",sets:"3 sets",reps:"Hold 30–60s",focus:"Disc centralization",cue:"Lie face-down. Prop up on your forearms like a cute little sphinx 🦁. Relax your hips completely. Research shows this gently reduces L5 disc pressure — magic! ✨",avoid:"Lifting hips or clenching your glutes",yt:"https://www.youtube.com/watch?v=p3MiLAiTSoY"},
+    {id:"ankle-pumps",name:"Ankle Pumps + Hip Abduction",icon:"🦶",sets:"2 sets",reps:"15 each",focus:"Circulation & nerve health",cue:"Lying down — briskly pump ankles 15×. Then lying on your side: slowly raise top leg 12 inches and lower. Keeps blood flowing to lumbar nerves 💫",avoid:"Forcing your range of motion",yt:"https://www.youtube.com/watch?v=s7VLSDa5mjc"},
+  ]},
+  {id:2,name:"Build 🌸",weeks:"Weeks 4–7",accent:"#a78bfa",tag:"Strengthen your glutes & hips",days:["Mon","Tue","Thu","Sat"],exercises:[
+    {id:"bird-dog-full",name:"Bird Dog Full 🐦✨",icon:"🐦",sets:"3 sets",reps:"10 each side, 3s hold",focus:"Full spinal stabilizers",cue:"On hands and knees. Now extend opposite arm AND leg simultaneously. Imagine that teacup again ☕ — stay level! Hold 3 seconds. You're a champion!",avoid:"Hiking your hip or rotating your torso",yt:"https://www.youtube.com/watch?v=kiWgdeycQCY"},
+    {id:"glute-bridge",name:"Glute Bridge 🌉",icon:"🌉",sets:"3 sets",reps:"12 × 5s holds",focus:"Glutes & posterior chain",cue:"Lie on back, feet flat, hip-width apart. Drive through your heels to lift hips — make a beautiful bridge! 🌈 Squeeze glutes (not lower back) and hold 5s.",avoid:"Hyperextending lower back at the top",yt:"https://www.youtube.com/watch?v=PhTDzR0TpZs"},
+    {id:"wall-sit",name:"Wall Sit 🧱",icon:"🧱",sets:"3 sets",reps:"20–30s hold",focus:"Quad & glute strength",cue:"Back flat against wall, feet out 2 feet. Slide down until thighs are parallel. Weight through heels. Your spine stays totally supported by the wall — so clever! 🎉",avoid:"Knees going past your toes",yt:"https://www.youtube.com/watch?v=Wz2TquDzGMw"},
+    {id:"side-clam",name:"Clamshell 🦀",icon:"🦀",sets:"3 sets",reps:"15 each side",focus:"Hip abductors & SI joint",cue:"Lie on your side, hips stacked, knees bent 45°. Keep feet together and open top knee toward ceiling like a little clamshell opening at the beach! 🏖️",avoid:"Rolling your hips backward to cheat",yt:"https://www.youtube.com/watch?v=2c5xiz4q7ow"},
+    {id:"cat-cow-mod",name:"Cat-Cow to Child's Pose 🐄",icon:"🐄",sets:"2 sets",reps:"8 full cycles",focus:"Spinal mobility",cue:"Hands and knees. Exhale — arch back up 🎃. Inhale — gentle sag. Flow into child's pose, arms extended, hold 20s. Ahhhh 😌",avoid:"Excessive extension in the cow portion",yt:"https://www.youtube.com/watch?v=jxWYlEPLdzs"},
+    {id:"walking",name:"Therapeutic Walking 🚶‍♀️",icon:"🚶‍♀️",sets:"1 session",reps:"15–20 min",focus:"Neurogenic claudication",cue:"Walk at your happy pace 🌻. Rest in slight forward lean if legs get heavy. That opens the spinal canal! You've got this! 💪",avoid:"Walking to the point of numbness or pain",yt:"https://www.youtube.com/watch?v=ptOICG6XzBk"},
+  ]},
+  {id:3,name:"Strengthen 💪",weeks:"Weeks 8–12",accent:"#34d399",tag:"Load tolerance & functional power",days:["Mon","Tue","Thu","Fri","Sat"],exercises:[
+    {id:"deadbug",name:"Dead Bug 🐛",icon:"🐛",sets:"3 sets",reps:"8 each side",focus:"Anti-extension core",cue:"Lie on back, arms to ceiling, hips & knees at 90°. Lower opposite arm + leg toward floor while keeping lower back pressed DOWN. Wiggle wiggle! 🐞",avoid:"Letting your lower back lift off the floor",yt:"https://www.youtube.com/watch?v=xtTIb6dC-vI"},
+    {id:"single-glute",name:"Single-Leg Glute Bridge 🌈",icon:"🌈",sets:"3 sets",reps:"10 each side",focus:"Glute strength & pelvic stability",cue:"Glute bridge but extend one leg straight! Drive through planted heel. Hips stay level — you're basically a fitness superhero 🦸‍♀️",avoid:"Compensating by hiking your hip",yt:"https://www.youtube.com/watch?v=PhTDzR0TpZs"},
+    {id:"step-up",name:"Step-Up 🪜",icon:"🪜",sets:"3 sets",reps:"10 each leg",focus:"Leg strength & function",cue:"Use a 4–6 inch step (a thick book works! 📚). Place full foot on step, drive through heel to stand tall. Lower slowly. Spine stays upright!",avoid:"Leaning forward excessively",yt:"https://www.youtube.com/watch?v=d77gM3HIoXg"},
+    {id:"prone-hip",name:"Prone Hip Extension 🏃‍♀️",icon:"🏃‍♀️",sets:"3 sets",reps:"12 each side",focus:"Glutes & lumbar erectors",cue:"Lie face-down with a pillow under tummy 🛏️. Squeeze glute, raise leg 6 inches. Hold 2s. Core stays engaged like a little corset!",avoid:"Rotating pelvis or using lower back to lift",yt:"https://www.youtube.com/watch?v=b_kAPWileU0"},
+    {id:"hip-march",name:"Standing Hip March 🥁",icon:"🥁",sets:"3 sets",reps:"10 each leg",focus:"Hip flexors & balance",cue:"Stand facing wall, fingertips touching. March knees up — like a tiny parade! 🎺 Maintain tall posture. Progress: slow to 3s up, 3s down.",avoid:"Leaning to one side or rounding your back",yt:"https://www.youtube.com/watch?v=ptOICG6XzBk"},
+    {id:"aqua",name:"Aquatic Walking 🏊‍♀️",icon:"🏊‍♀️",sets:"1 session",reps:"20–30 min",focus:"Low-impact endurance",cue:"Water reduces spinal compression by ~50%! 🌊 Walk in chest-deep water or swim with a pull buoy. The pool is your best friend! 💦",avoid:"Backstroke or butterfly (too much extension)",yt:"https://www.youtube.com/watch?v=ptOICG6XzBk"},
+  ]},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const LS = {
+  get:(k,fb)=>{try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):fb;}catch{return fb;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+let phaseIdx = LS.get("spine_phaseIdx",0);
+let week = LS.get("spine_week",1);
+let activeDay = (() => {
+  const d = new Date().getDay();
+  return DAYS[d===0?6:d-1];
+})();
+let activeMainTab = "today";
+let expandedEx = null;
+let streak = LS.get("spine_streak_v2",0);
+
+function phase(){ return PHASES[phaseIdx]; }
+function storeKey(){ return `spine_r_${phaseIdx}_w${week}_${activeDay}`; }
+function getChecked(){ return LS.get(storeKey()+"_chk",{}); }
+function saveChecked(c){ LS.set(storeKey()+"_chk",c); }
+function getNotes(){ return LS.get(storeKey()+"_notes",""); }
+function saveNotes(v){ LS.set(storeKey()+"_notes",v); }
+function getPainEntry(){ return LS.get(storeKey()+"_pain",null); }
+function savePainEntry(pain,meds){
+  LS.set(storeKey()+"_pain",{pain,meds});
+  const todayStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  let log = LS.get("spine_pain_log_v2",[]);
+  const idx = log.findIndex(d=>d.date===todayStr);
+  const entry = {date:todayStr,pain,meds,day:activeDay};
+  if(idx>=0) log[idx]=entry; else log.push(entry);
+  LS.set("spine_pain_log_v2",log);
+}
+function getPainLog(){ return LS.get("spine_pain_log_v2",[]); }
+function painColor(v){ return v<=3?"#4ade80":v<=6?"#fbbf24":"#f87171"; }
+function painEmoji(v){ return ["😊","🙂","🙂","😐","😐","😕","😕","😣","😣","😢","😭"][Math.min(v,10)]; }
+function getRBG(i){ return RAINBOW[i%RAINBOW.length]; }
+function getRainbowGrad(){ return "linear-gradient(135deg,#ffb3c1,#ffcba4,#fff1a8,#b8f0c0,#a8e6f0,#c4b5fd,#f9a8d4)"; }
+function maxWeek(){ return phaseIdx===0?3:phaseIdx===1?4:5; }
+function completedCount(){
+  const c=getChecked();
+  return phase().exercises.filter(e=>c[e.id]).length;
+}
+function pct(){ return Math.round(completedCount()/phase().exercises.length*100); }
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  renderHeader();
+  renderCurrentTab();
+  updateStreakDisplay();
+}
+
+function renderHeader(){
+  // Background gradient
+  document.getElementById("header").style.background = getRainbowGrad();
+
+  // Phase buttons
+  PHASES.forEach((p,i)=>{
+    const btn = document.getElementById(`phase-btn-${i}`);
+    btn.style.border = i===phaseIdx?`2px solid ${p.accent}`:"2px solid rgba(255,255,255,0.6)";
+    btn.style.background = i===phaseIdx?"rgba(255,255,255,0.9)":"rgba(255,255,255,0.4)";
+    btn.style.boxShadow = i===phaseIdx?`0 4px 12px ${p.accent}44`:"none";
+    document.getElementById(`phase-btn-label-${i}`).style.color = i===phaseIdx?p.accent:"#9d77cc";
+  });
+
+  // Week bubbles
+  const wc = document.getElementById("week-container");
+  wc.innerHTML = `<span style="font-size:11px;font-weight:800;color:#7c3aed;margin-right:4px;">Week:</span>`;
+  for(let w=1;w<=maxWeek();w++){
+    const btn = document.createElement("button");
+    btn.className = "week-btn" + (w===week?" active":"");
+    btn.textContent = w;
+    btn.style.background = w===week?phase().accent:"rgba(255,255,255,0.6)";
+    btn.style.boxShadow = w===week?`0 3px 10px ${phase().accent}66`:"none";
+    btn.onclick = ()=>{ week=w; LS.set("spine_week",w); render(); };
+    wc.appendChild(btn);
+  }
+
+  // Progress
+  const p = pct();
+  document.getElementById("pct-display").textContent = p+"%";
+  document.getElementById("progress-bar").style.width = p+"%";
+  document.getElementById("ex-count").textContent = `${completedCount()}/${phase().exercises.length} exercises 🌟`;
+
+  // Day tabs
+  const dt = document.getElementById("day-tabs");
+  dt.innerHTML = "";
+  DAYS.forEach((d,di)=>{
+    const isWorkout = phase().days.includes(d);
+    const isActive = d===activeDay;
+    const todayDayIdx = new Date().getDay();
+    const todayName = DAYS[todayDayIdx===0?6:todayDayIdx-1];
+    const isToday = d===todayName;
+    const dc = LS.get(`spine_r_${phaseIdx}_w${week}_${d}_chk`,{});
+    const done = phase().exercises.filter(e=>dc[e.id]).length;
+
+    const btn = document.createElement("button");
+    btn.className = "day-btn" + (isWorkout?" workout":"") + (isActive?" active":"");
+    btn.style.border = isActive?`2px solid ${phase().accent}`:"2px solid rgba(255,255,255,0.4)";
+    btn.style.borderBottom = isActive?`2px solid white`:"2px solid transparent";
+    let dot = "";
+    if(done===phase().exercises.length&&done>0) dot=`<div style="font-size:8px;text-align:center;">🌟</div>`;
+    else if(isToday) dot=`<div style="width:4px;height:4px;border-radius:50%;background:${phase().accent};margin:0 auto;"></div>`;
+    else if(isWorkout) dot=`<div style="width:4px;height:4px;border-radius:50%;background:#e0d0ff;margin:0 auto;"></div>`;
+    btn.innerHTML = `<div style="font-size:9px;font-weight:800;color:${isActive?phase().accent:isWorkout?"#9d77cc":"#c4b5fd"};">${d}</div><div style="margin-top:2px;height:6px;">${dot}</div>`;
+    btn.onclick = ()=>{ activeDay=d; expandedEx=null; render(); };
+    dt.appendChild(btn);
+  });
+}
+
+function renderCurrentTab(){
+  // Main tab active states
+  ["today","graph","progress","tips"].forEach(t=>{
+    const btn = document.getElementById(`mtab-${t}`);
+    btn.classList.toggle("active", t===activeMainTab);
+    btn.style.color = t===activeMainTab?phase().accent:"#c4b5fd";
+    btn.style.borderBottomColor = t===activeMainTab?phase().accent:"transparent";
+    document.getElementById(`tab-${t}`).classList.toggle("active", t===activeMainTab);
+  });
+
+  if(activeMainTab==="today") renderToday();
+  if(activeMainTab==="graph") renderGraph();
+  if(activeMainTab==="progress") renderProgress();
+  if(activeMainTab==="tips") renderTips();
+}
+
+function renderToday(){
+  const el = document.getElementById("today-content");
+  const ph = phase();
+  const isRestDay = !ph.days.includes(activeDay);
+
+  if(isRestDay){
+    el.innerHTML = `<div style="text-align:center;padding:50px 20px;background:${getRainbowGrad()};border-radius:24px;">
+      <div style="font-size:60px;margin-bottom:12px;">🛌</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:22px;color:#7c3aed;margin-bottom:8px;">Rest & Recharge Day!</div>
+      <div style="font-size:13px;color:#9d77cc;line-height:1.6;">Your body heals when you rest 💜<br>A gentle walk is totally fine 🌸</div>
+    </div>`;
+    return;
+  }
+
+  const checked = getChecked();
+  const painEntry = getPainEntry();
+  const notes = getNotes();
+  const p = pct();
+
+  let html = `<div style="background:linear-gradient(135deg,#f3e8ff,#fce7f3);border-radius:20px;padding:12px 16px;margin-bottom:16px;text-align:center;">
+    <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#7c3aed;">${ph.name} · ${ph.tag} 💖</div>
+    <div style="font-size:11px;color:#9d77cc;margin-top:2px;">${activeDay} · Week ${week}</div>
+  </div>`;
+
+  ph.exercises.forEach((ex,i)=>{
+    const isDone = !!checked[ex.id];
+    const color = getRBG(i);
+    const isExpanded = expandedEx===ex.id;
+    html += `<div class="ex-card" id="ex-${ex.id}" style="background:${isDone?color+"15":"white"};border:2px solid ${isDone?color:"#f3e8ff"};border-radius:20px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,0.05);overflow:hidden;">
+      <div style="display:flex;align-items:center;padding:13px 14px;gap:10px;">
+        <div onclick="toggleEx('${ex.id}')" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;background:${isDone?color:"white"};border:2px solid ${isDone?color:"#e9d5ff"};display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:white;font-weight:800;box-shadow:${isDone?`0 0 10px ${color}88`:"none"};transition:all 0.2s;">${isDone?"✓":""}</div>
+        <span style="font-size:20px;">${ex.icon}</span>
+        <div style="flex:1;min-width:0;" onclick="toggleExpand('${ex.id}')">
+          <div style="font-family:'Fredoka One',cursive;font-size:15px;color:${isDone?color:"#4c1d95"};text-decoration:${isDone?"line-through":"none"};">${ex.name}</div>
+          <div style="font-size:10px;color:#c4b5fd;font-weight:700;">${ex.sets} · ${ex.reps}</div>
+        </div>
+        <div onclick="toggleExpand('${ex.id}')" class="expand-icon" id="expand-icon-${ex.id}" style="cursor:pointer;font-size:16px;color:${color};transform:${isExpanded?"rotate(180deg)":"rotate(0deg)"};">⌄</div>
+      </div>
+      <div id="ex-detail-${ex.id}" style="display:${isExpanded?"block":"none"};padding:0 16px 16px;border-top:2px dashed ${color}44;">
+        <div style="padding-top:12px;">
+          <div style="background:${color}15;border-radius:14px;padding:10px 14px;margin-bottom:10px;">
+            <div style="font-size:10px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">🎯 Focus</div>
+            <div style="font-size:12px;color:#6b21a8;">${ex.focus}</div>
+          </div>
+          <div style="background:#faf5ff;border-radius:14px;padding:10px 14px;margin-bottom:10px;">
+            <div style="font-size:10px;font-weight:800;color:#9d77cc;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">✨ How To Do It</div>
+            <div style="font-size:12px;color:#4c1d95;line-height:1.7;">${ex.cue}</div>
+          </div>
+          <div style="background:#fff0f0;border-radius:14px;padding:8px 12px;margin-bottom:12px;">
+            <span style="font-size:10px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:1px;">🚫 Avoid: </span>
+            <span style="font-size:11px;color:#dc2626;">${ex.avoid}</span>
+          </div>
+          <a href="${ex.yt}" target="_blank" rel="noopener noreferrer" class="yt-link">
+            <span style="font-size:18px;">▶️</span> Watch Tutorial on YouTube
+          </a>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Pain & meds
+  const curPain = painEntry?painEntry.pain:null;
+  const curMeds = painEntry?painEntry.meds:false;
+  let painBtns = "";
+  for(let v=0;v<=10;v++){
+    const sel = curPain===v;
+    const cls = sel?(v<=3?"selected-green":v<=6?"selected-yellow":"selected-red"):"";
+    painBtns += `<button class="pain-btn ${cls}" onclick="logPain(${v})">${v}</button>`;
+  }
+
+  html += `<div style="background:linear-gradient(135deg,#fce7f3,#f3e8ff);border-radius:20px;padding:16px;margin-top:6px;margin-bottom:12px;">
+    <div style="font-family:'Fredoka One',cursive;font-size:15px;color:#7c3aed;margin-bottom:12px;">How are you feeling? 💕</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:14px;padding:10px 14px;margin-bottom:12px;">
+      <div>
+        <div style="font-family:'Fredoka One',cursive;font-size:13px;color:#7c3aed;">💊 Took painkillers today?</div>
+        <div style="font-size:10px;color:#c4b5fd;margin-top:1px;">This helps track your pain patterns</div>
+      </div>
+      <button class="toggle-track" id="meds-toggle" onclick="toggleMeds()" style="background:${curMeds?"#fbbf24":"#e9d5ff"};">
+        <div class="toggle-thumb" style="left:${curMeds?26:4}px;"></div>
+      </button>
+    </div>
+    <div style="font-size:11px;font-weight:800;color:#9d77cc;margin-bottom:8px;text-align:center;">Pain level (0 = none, 10 = worst)</div>
+    <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">${painBtns}</div>
+    ${curPain!==null?`<div style="text-align:center;margin-top:10px;font-size:18px;">${painEmoji(curPain)} <span style="font-family:'Fredoka One',cursive;font-size:13px;color:#9d77cc;">Pain: ${curPain}/10 ${curMeds?"💊 (on meds)":"🌿 (no meds)"}</span></div>`:""}
+  </div>`;
+
+  html += `<textarea id="notes-area" placeholder="📝 Notes for today… how did you feel? Any modifications?" style="width:100%;background:white;border:2px solid #f3e8ff;border-radius:16px;padding:12px 14px;color:#4c1d95;font-size:12px;line-height:1.6;min-height:80px;outline:none;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.04);">${escHtml(notes)}</textarea>`;
+
+  if(p===100){
+    html += `<div style="background:${getRainbowGrad()};border-radius:20px;padding:16px;text-align:center;margin-top:10px;">
+      <div style="font-size:32px;">🎉🌈⭐</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#5b21b6;margin-top:4px;">YOU DID IT!! Amazing work today! 💪💜</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+  document.getElementById("notes-area").addEventListener("input",e=>saveNotes(e.target.value));
+}
+
+function renderGraph(){
+  const log = getPainLog();
+  const el = document.getElementById("graph-content");
+  if(!log||log.length===0){
+    el.innerHTML = `<div style="text-align:center;padding:30px 20px;background:#faf5ff;border-radius:20px;border:2px dashed #e9d5ff;">
+      <div style="font-size:32px;margin-bottom:8px;">📊</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:14px;color:#c4b5fd;">No pain data yet!</div>
+      <div style="font-size:11px;color:#ddd6fe;margin-top:4px;">Log your pain after each workout to see your trend here 🌸</div>
+    </div>`;
+    return;
+  }
+  const last30 = log.slice(-30);
+  const W=320,H=180,PAD={top:20,right:16,bottom:50,left:30};
+  const cW=W-PAD.left-PAD.right,cH=H-PAD.top-PAD.bottom;
+  const xStep=last30.length>1?cW/(last30.length-1):cW;
+  const gX=i=>PAD.left+(last30.length>1?i*xStep:cW/2);
+  const gY=v=>PAD.top+cH-(v/10)*cH;
+
+  const avg = Math.round(last30.reduce((s,d)=>s+d.pain,0)/last30.length*10)/10;
+  const medDays=last30.filter(d=>d.meds).length,noMedDays=last30.filter(d=>!d.meds).length;
+  const avgMed=medDays>0?Math.round(last30.filter(d=>d.meds).reduce((s,d)=>s+d.pain,0)/medDays*10)/10:null;
+  const avgNoMed=noMedDays>0?Math.round(last30.filter(d=>!d.meds).reduce((s,d)=>s+d.pain,0)/noMedDays*10)/10:null;
+
+  const painPts=last30.map((d,i)=>`${gX(i)},${gY(d.pain)}`);
+  const painPath="M "+painPts.join(" L ");
+  const areaPath=`M ${gX(0)},${gY(0)} L ${gX(0)},${gY(last30[0].pain)} `+last30.map((d,i)=>`L ${gX(i)},${gY(d.pain)}`).join(" ")+` L ${gX(last30.length-1)},${gY(0)} Z`;
+
+  let medBands="";
+  let segStart=null;
+  last30.forEach((d,i)=>{
+    if(d.meds&&segStart===null) segStart=i;
+    if(!d.meds&&segStart!==null){medBands+=`<rect x="${gX(segStart)-xStep/2}" y="${PAD.top}" width="${gX(i)-gX(segStart)+xStep}" height="${cH}" fill="#fef3c7" fill-opacity="0.6"/>`;segStart=null;}
+  });
+  if(segStart!==null) medBands+=`<rect x="${gX(segStart)-xStep/2}" y="${PAD.top}" width="${gX(last30.length-1)-gX(segStart)+xStep}" height="${cH}" fill="#fef3c7" fill-opacity="0.6"/>`;
+
+  let gridLines="";
+  [0,2,4,6,8,10].forEach(v=>{
+    gridLines+=`<line x1="${PAD.left}" y1="${gY(v)}" x2="${W-PAD.right}" y2="${gY(v)}" stroke="#f3e8ff" stroke-width="${v===0?1:0.5}"/>
+    <text x="${PAD.left-4}" y="${gY(v)+4}" text-anchor="end" font-size="8" fill="#c4b5fd">${v}</text>`;
+  });
+
+  const labelEvery=Math.max(1,Math.floor(last30.length/5));
+  let xLabels="";
+  last30.forEach((d,i)=>{
+    if(i%labelEvery!==0&&i!==last30.length-1) return;
+    xLabels+=`<text x="${gX(i)}" y="${H-PAD.bottom+14}" text-anchor="middle" font-size="8" fill="#c4b5fd">${d.date}</text>`;
+  });
+
+  let dots="";
+  last30.forEach((d,i)=>{
+    dots+=`<circle cx="${gX(i)}" cy="${gY(d.pain)}" r="${d.meds?5:4}" fill="${d.meds?"#fbbf24":"#f472b6"}" stroke="white" stroke-width="1.5"/>`;
+    if(d.meds) dots+=`<circle cx="${gX(i)}" cy="${gY(d.pain)}" r="7" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2,2"/>`;
+  });
+
+  let insight="";
+  if(avgMed!==null&&avgNoMed!==null){
+    const bg=avgMed<avgNoMed?"#d1fae5":avgMed>avgNoMed?"#fef3c7":"#f3e8ff";
+    const msg=avgMed<avgNoMed?`💊 Pain is lower on medication days (${avgMed} vs ${avgNoMed}) — meds seem to be helping! Share this with your doctor 🌸`:avgMed>avgNoMed?`⚠️ Pain averages higher on medication days (${avgMed} vs ${avgNoMed}) — this might mean you're only taking them when pain is already worse. Worth mentioning to your doctor! 💜`:`✨ Pain levels are similar on and off medication days (both ~${avgMed})`;
+    insight=`<div style="background:${bg};border-radius:14px;padding:8px 14px;margin-bottom:12px;font-size:11px;color:#4c1d95;line-height:1.5;">${msg}</div>`;
+  }
+
+  let logRows="";
+  [...log].reverse().slice(0,20).forEach(d=>{
+    logRows+=`<div style="background:white;border-radius:14px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border:2px solid ${d.meds?"#fef3c7":"#f3e8ff"};margin-bottom:6px;">
+      <div><span style="font-family:'Fredoka One',cursive;font-size:13px;color:#7c3aed;">${d.date}</span>${d.day?`<span style="font-size:10px;color:#c4b5fd;margin-left:6px;">${d.day}</span>`:""}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${d.meds?`<span style="font-size:11px;background:#fef3c7;border-radius:10px;padding:2px 8px;color:#d97706;font-weight:800;">💊 Meds</span>`:""}
+        <div style="width:32px;height:32px;border-radius:50%;background:${painColor(d.pain)};display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:14px;color:white;box-shadow:0 2px 6px ${painColor(d.pain)}66;">${d.pain}</div>
+        <span style="font-size:16px;">${painEmoji(d.pain)}</span>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;justify-content:center;">
+      <div style="background:linear-gradient(135deg,#fce7f3,#f3e8ff);border-radius:20px;padding:6px 14px;text-align:center;">
+        <div style="font-family:'Fredoka One',cursive;font-size:18px;color:#7c3aed;">${avg}</div>
+        <div style="font-size:9px;color:#c4b5fd;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Avg Pain</div>
+      </div>
+      ${avgMed!==null?`<div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:20px;padding:6px 14px;text-align:center;"><div style="font-family:'Fredoka One',cursive;font-size:18px;color:#d97706;">${avgMed}</div><div style="font-size:9px;color:#fbbf24;font-weight:800;text-transform:uppercase;letter-spacing:1px;">💊 On Meds</div></div>`:""}
+      ${avgNoMed!==null?`<div style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:20px;padding:6px 14px;text-align:center;"><div style="font-family:'Fredoka One',cursive;font-size:18px;color:#059669;">${avgNoMed}</div><div style="font-size:9px;color:#34d399;font-weight:800;text-transform:uppercase;letter-spacing:1px;">🌿 Off Meds</div></div>`:""}
+      <div style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:20px;padding:6px 14px;text-align:center;"><div style="font-family:'Fredoka One',cursive;font-size:18px;color:#7c3aed;">${log.length}</div><div style="font-size:9px;color:#c4b5fd;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Days Logged</div></div>
+    </div>
+    ${insight}
+    <div style="background:white;border-radius:20px;padding:12px 8px;border:2px solid #f3e8ff;overflow-x:auto;margin-bottom:12px;">
+      <svg width="${W}" height="${H}" style="display:block;margin:0 auto;">
+        <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f472b6" stop-opacity="0.3"/><stop offset="100%" stop-color="#f472b6" stop-opacity="0"/></linearGradient></defs>
+        ${medBands}${gridLines}
+        ${last30.length>1?`<path d="${areaPath}" fill="url(#pg)"/>`:""}
+        ${last30.length>1?`<path d="${painPath}" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`:""}
+        ${dots}${xLabels}
+        <line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+cH}" stroke="#e9d5ff" stroke-width="1"/>
+        <line x1="${PAD.left}" y1="${PAD.top+cH}" x2="${W-PAD.right}" y2="${PAD.top+cH}" stroke="#e9d5ff" stroke-width="1"/>
+      </svg>
+      <div style="display:flex;gap:14px;justify-content:center;margin-top:8px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:4px;"><div style="width:10px;height:10px;border-radius:50%;background:#f472b6;"></div><span style="font-size:9px;color:#c4b5fd;font-weight:700;">No meds</span></div>
+        <div style="display:flex;align-items:center;gap:4px;"><div style="width:10px;height:10px;border-radius:50%;background:#fbbf24;border:2px dashed #fbbf24;"></div><span style="font-size:9px;color:#c4b5fd;font-weight:700;">💊 On meds</span></div>
+        <div style="display:flex;align-items:center;gap:4px;"><div style="width:10px;height:6px;background:#fef3c7;border:1px solid #fbbf24;border-radius:2px;"></div><span style="font-size:9px;color:#c4b5fd;font-weight:700;">Med period</span></div>
+      </div>
+    </div>
+    ${log.length>0?`<div style="font-family:'Fredoka One',cursive;font-size:15px;color:#7c3aed;margin-bottom:10px;">Recent Entries 📋</div><div style="max-height:240px;overflow-y:auto;">${logRows}</div>
+    <button onclick="clearPainLog()" style="width:100%;margin-top:12px;background:none;border:2px dashed #fecaca;border-radius:14px;padding:10px;color:#fca5a5;cursor:pointer;font-family:'Fredoka One',cursive;font-size:12px;">🗑️ Clear Pain History</button>`:""}
+  `;
+}
+
+function renderProgress(){
+  const el = document.getElementById("progress-content");
+  const ph = phase();
+  let html = `<div style="text-align:center;margin-bottom:20px;">
+    <div style="font-family:'Fredoka One',cursive;font-size:22px;color:#7c3aed;">Your Journey 🌈</div>
+    <div style="font-size:12px;color:#9d77cc;font-weight:700;">Week ${week} · Phase ${ph.id}: ${ph.name}</div>
+  </div>`;
+  DAYS.forEach((d,di)=>{
+    if(!ph.days.includes(d)) return;
+    const dc=LS.get(`spine_r_${phaseIdx}_w${week}_${d}_chk`,{});
+    const done=ph.exercises.filter(e=>dc[e.id]).length;
+    const p=Math.round(done/ph.exercises.length*100);
+    const color=getRBG(di);
+    html+=`<div style="background:white;border-radius:16px;padding:14px 16px;margin-bottom:8px;border:2px solid ${p===100?color:"#f3e8ff"};box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-family:'Fredoka One',cursive;font-size:14px;color:${p===100?color:"#9d77cc"};">${d} ${p===100?"🌟":""}</span>
+        <span style="font-size:11px;font-weight:800;color:#c4b5fd;">${done}/${ph.exercises.length}</span>
+      </div>
+      <div style="height:8px;background:#f3e8ff;border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${p}%;background:${p===100?color:color+"88"};border-radius:4px;transition:width 0.5s;"></div>
+      </div>
+      ${p===100?`<div style="font-size:11px;font-weight:800;color:${color};margin-top:4px;">Complete! Amazing! 🎉</div>`:""}
+    </div>`;
+  });
+  html+=`<div style="background:linear-gradient(135deg,#f3e8ff,#fce7f3);border-radius:20px;padding:16px;margin-top:16px;">
+    <div style="font-family:'Fredoka One',cursive;font-size:15px;color:#7c3aed;margin-bottom:12px;">All Phases 🗺️</div>`;
+  PHASES.forEach((p,i)=>{
+    html+=`<div onclick="setPhase(${i})" style="background:${i===phaseIdx?"white":"rgba(255,255,255,0.5)"};border-radius:16px;padding:12px 14px;margin-bottom:8px;border:2px solid ${i===phaseIdx?p.accent:"transparent"};cursor:pointer;transition:all 0.2s;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-family:'Fredoka One',cursive;font-size:14px;color:${p.accent};">${p.name}</div>
+          <div style="font-size:10px;color:#c4b5fd;font-weight:700;">${p.weeks} · ${p.tag}</div>
+        </div>
+        ${i===phaseIdx?`<div style="background:${p.accent};color:white;border-radius:20px;padding:3px 10px;font-size:10px;font-family:'Fredoka One',cursive;">Active ✨</div>`:""}
+      </div>
+    </div>`;
+  });
+  html+="</div>";
+  el.innerHTML=html;
+}
+
+function renderTips(){
+  const tips=[
+    {e:"💜",t:"Why Flexion-Based?",c:"#a78bfa",b:"Your stenosis narrows the spinal canal. Bending slightly forward opens it back up and relieves nerve pressure! This program keeps your spine in neutral-to-flexion positions for maximum relief. 🌸"},
+    {e:"🫁",t:"The L5 Disc Bulge",c:"#f472b6",b:"At L5, backbending can push disc material toward the nerve. The Half Cobra is carefully dosed — used just enough to centralize the disc, never to the point of more leg symptoms. 💕"},
+    {e:"⭐",t:"Your Core = Your Armor",c:"#fbbf24",b:"Deep core muscles act like a natural back brace! Always do Phase 1 activation exercises — even when they feel easy. They're your secret weapon! 💪"},
+    {e:"💊",t:"About Painkillers & Your Graph",c:"#fb923c",b:"Log whether you took painkillers each session. Over time your Pain Graph will show your average pain ON vs OFF meds. If pain is consistently higher on med days, it likely means you're only taking them when already in more pain — helpful info for your doctor! 📊"},
+    {e:"🚦",t:"Pain Rules",c:"#34d399",b:"A mild ache is okay. But numbness, sharp pain, or more leg symptoms = STOP and rest. Your symptoms guide everything. When in doubt — do less! Rest is progress too 🛌💜"},
+    {e:"🚫",t:"Exercises to Avoid",c:"#f87171",b:"• Heavy deadlifts or squats\n• Leg press machine\n• Sit-ups / crunches\n• Running or jumping\n• Overhead weight lifting\n• Extreme backbends"},
+    {e:"🌞",t:"Daily Habits",c:"#60a5fa",b:"• Sit with a lumbar support pillow\n• Stand up & move every 30 min\n• Sleep on your side, pillow between knees 🛌\n• Ice 15 min after workouts if inflamed\n• Short walks are your best friend 🚶‍♀️"},
+  ];
+  document.getElementById("tips-content").innerHTML=tips.map(tip=>`
+    <div style="background:white;border:2px solid ${tip.c}44;border-radius:20px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+      <div style="font-family:'Fredoka One',cursive;font-size:15px;color:${tip.c};margin-bottom:8px;">${tip.e} ${tip.t}</div>
+      <div style="font-size:12px;color:#6b21a8;line-height:1.8;white-space:pre-line;">${tip.b}</div>
+    </div>`).join("");
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function setPhase(i){
+  phaseIdx=i; week=1; expandedEx=null;
+  LS.set("spine_phaseIdx",i); LS.set("spine_week",1);
+  render();
+}
+
+function setMainTab(t){
+  activeMainTab=t;
+  renderCurrentTab();
+}
+
+function toggleEx(id){
+  const c=getChecked();
+  c[id]=!c[id];
+  saveChecked(c);
+  const done=completedCount();
+  const total=phase().exercises.length;
+  if(done===total){
+    shootConfetti();
+    const lastLog=LS.get("spine_last_log_v2",null);
+    const today=new Date().toDateString();
+    if(lastLog!==today){
+      streak++; LS.set("spine_streak_v2",streak); LS.set("spine_last_log_v2",today);
+    }
+  }
+  render();
+}
+
+function toggleExpand(id){
+  expandedEx = expandedEx===id?null:id;
+  renderCurrentTab();
+}
+
+function logPain(v){
+  const entry=getPainEntry();
+  savePainEntry(v, entry?entry.meds:false);
+  renderToday();
+}
+
+function toggleMeds(){
+  const entry=getPainEntry();
+  const meds=entry?!entry.meds:true;
+  const pain=entry?entry.pain:0;
+  savePainEntry(pain,meds);
+  renderToday();
+}
+
+function clearPainLog(){
+  if(confirm("Clear all pain history? This cannot be undone.")){
+    LS.set("spine_pain_log_v2",[]);
+    renderGraph();
+  }
+}
+
+function updateStreakDisplay(){
+  document.getElementById("streak-display").textContent=streak;
+}
+
+function shootConfetti(){
+  const emojis=["🌈","⭐","💖","🎉","✨","🌸","🦋","🎀"];
+  const c=document.getElementById("confetti-container");
+  c.innerHTML="";
+  emojis.forEach((e,i)=>{
+    const span=document.createElement("span");
+    span.className="confetti-piece";
+    span.textContent=e;
+    span.style.left=`${8+i*12}%`;
+    span.style.animationDelay=`${i*0.15}s`;
+    span.style.top="0";
+    c.appendChild(span);
+  });
+  setTimeout(()=>c.innerHTML="",3500);
+}
+
+function escHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
